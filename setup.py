@@ -1,7 +1,7 @@
 """
 
 """
-
+import os
 from setuptools import setup
 from distutils.core import Command as BaseCommand
 from unittest import TestLoader, TextTestRunner
@@ -34,11 +34,16 @@ class TestCommand(BaseCommand):
             runner = TextTestRunner(verbosity=2)
             runner.run(test_suite)
 
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Get the long description from the README file
+with open(os.path.join(here, 'README.rst')) as f:
+    long_description = f.read()
 
 setup(name='gsf',
       version='1.0.2',
       description='GSF Py',
-      long_description='',
+      long_description=long_description,
       author='Exelis Visual Information Solutions, Inc.',
       packages=['gsf',
                 'gsf.ese'],
