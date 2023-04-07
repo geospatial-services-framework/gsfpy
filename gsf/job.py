@@ -5,9 +5,8 @@ from __future__ import absolute_import
 from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
-from .utils import with_metaclass
 
-class Job(with_metaclass(GSFMeta, object)):
+class Job(metaclass=GSFMeta):
     """
     A GSF Job object connects to a GSF Job and its status.
 

@@ -5,10 +5,9 @@ from __future__ import absolute_import
 from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
-from .utils import with_metaclass
 
 
-class Service(with_metaclass(GSFMeta, object)):
+class Service(metaclass=GSFMeta):
     """
     The GSF Service connection class.
 

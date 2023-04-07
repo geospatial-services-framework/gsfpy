@@ -4,7 +4,6 @@ Created on Jan 6, 2016
 """
 import time
 import unittest
-import xmlrunner
 
 
 from gsf.test.util import assert_time_lt

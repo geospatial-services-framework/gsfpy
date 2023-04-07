@@ -31,8 +31,8 @@ class TestJob(unittest.TestCase):
         self.assertIsInstance(self.job, Job)
 
     def test_job_id(self):
-        """Verify job id returns an int."""
-        self.assertIsInstance(self.job.job_id, int)
+        """Verify job id returns an str."""
+        self.assertIsInstance(self.job.job_id, str)
 
     def test_status(self):
         """Verify status returns a string and success."""
@@ -57,6 +57,8 @@ class TestJob(unittest.TestCase):
     def test_results(self):
         """Verify results returns a dictionary."""
         self.assertIsInstance(self.job.results, dict)
+        self.assertIn('OUTPUT_RASTER', self.job.results)
+        self.assertIn('url', self.job.results['OUTPUT_RASTER'])
 
     def test_invalid_id(self):
         """Verify getting an invalid job id throws and exception."""
