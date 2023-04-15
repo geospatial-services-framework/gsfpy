@@ -8,8 +8,6 @@ pipeline {
             image rsidocker.imageMap['linux']
         }                            
     }
-    triggers {
-    }
     parameters {
         choice(name: 'BUILD_TYPE', choices: ['Development', 'Release'], description: 'Release or Development build')
     }
