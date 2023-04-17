@@ -4,7 +4,7 @@
 pipeline {
     agent {
         docker {
-            label rsidocker.getHost('linux-master')
+            label 'docker & linux'
             image rsidocker.imageMap['linux']
         }                            
     }
