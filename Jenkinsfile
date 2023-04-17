@@ -4,7 +4,7 @@
 pipeline {
     agent {
         docker {
-            label 'docker & linux'
+            label 'docker && linux'
             image rsidocker.imageMap['linux']
         }                            
     }
