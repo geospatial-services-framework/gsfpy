@@ -3,7 +3,7 @@ Implements the GSF Service class for the ESE services endpoint.
 """
 
 import requests
-from functools import cache
+from functools import lru_cache
 
 from ..error import ServiceNotFoundError
 
@@ -34,7 +34,7 @@ class Service(BaseService):
         service_info = self._http_get()
         return str(service_info['name'])
 
-    @cache
+    @lru_cache(maxsize=None)
     def _http_get(self, path=None):
         """
         :return:

@@ -1,5 +1,5 @@
 
-from functools import cache
+from functools import lru_cache
 import requests
 from requests.exceptions import ConnectionError
 from urllib.parse import urlunparse
@@ -53,7 +53,7 @@ class Server(BaseServer):
         """
         return Job('/'.join((self._url, 'jobs', str(job_id))))
 
-    @cache
+    @lru_cache(maxsize=None)
     def _http_get(self):
         """
         :return:

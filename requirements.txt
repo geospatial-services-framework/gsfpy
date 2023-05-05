@@ -5,7 +5,6 @@ charset-normalizer==3.1.0
 colorama==0.4.6
 docutils==0.19
 exceptiongroup==1.1.1
--e git+https://github.com/geospatial-services-framework/gsfpy@251ef5de3a86e311552ba65674da51203913b1eb#egg=gsf
 idna==3.4
 importlib-metadata==6.4.1
 iniconfig==2.0.0

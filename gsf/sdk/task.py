@@ -1,7 +1,7 @@
 """
 Implements the GSF task class for the ESE task endpoint.
 """
-from functools import cache
+from functools import lru_cache
 import requests
 from urllib.parse import urlparse, urlunparse
 
@@ -94,7 +94,7 @@ class Task(BaseTask):
                 parameter['choice_list'] = parameter.pop('choiceList')        
         return parameters
 
-    @cache
+    @lru_cache(maxsize=None)
     def _http_get(self):
         response = requests.get(self._uri)
         if response.status_code >= 400:
