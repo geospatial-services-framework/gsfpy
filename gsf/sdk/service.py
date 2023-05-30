@@ -17,22 +17,24 @@ class Service(BaseService):
     """
     def __init__(self, url):
         self._url = url
+        self._service_info = self._http_get()
 
     def task(self, task_name):
         return Task('/'.join((self._url, 'tasks', task_name)))
 
+    @property
     def tasks(self):
         return self._http_get('tasks')['tasks']
 
     @property
     def name(self):
-        service_info = self._http_get()
-        return str(service_info['name'])
-
+        #service_info = self._http_get()
+        return str(self._service_info['name'])
+    
     @property
     def description(self):
-        service_info = self._http_get()
-        return str(service_info['name'])
+        #service_info = self._http_get()
+        return str(self._service_info['name'])
 
     @lru_cache(maxsize=None)
     def _http_get(self, path=None):
