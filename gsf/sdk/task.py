@@ -56,7 +56,7 @@ class Task(BaseTask):
                           None, None, None))
 
 
-    def submit(self, parameters):
+    def submit(self, parameters=None):
         """
         """
         jobOptions = {
@@ -65,16 +65,23 @@ class Task(BaseTask):
             "jobOptions": {
                 "route": "default",
                 "jobResultsFile": "job_results.json"
-            },
-            "inputParameters": parameters
+            }
         }
+        # a task may have no input parameter, so we add it if defined only
+        if parameters is not None :
+            jobOptions['inputParameters'] = parameters
+
         # Trace back the url to get the service name
         jobs_url = self._jobs_url()
         response = requests.post(jobs_url, json=jobOptions)
         if response.status_code >= 400:
             raise TaskNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
         status = response.json()
-        return Job('/'.join((jobs_url, status['jobId'])))
+        # it seems that Eric used jobID with capitalized ID so we keep it
+        jobid_str =  str(status['jobID']) if 'jobID' in status else  ''
+        jobid_str =  str(status['jobId']) if 'jobId' in status else  ''
+                                
+        return Job('/'.join((jobs_url, jobid_str)))
 
     def _reformat_info(self, parameters, direction):
         for parameter in parameters:
