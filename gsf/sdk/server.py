@@ -80,11 +80,6 @@ class Server(BaseServer):
         :return: a Job object
         """
         return Job('/'.join((self._url, 'jobs', str(job_id))))
-<<<<<<< Updated upstream
-
-    @lru_cache(maxsize=None)
-    def _http_get(self):
-=======
     
     def getJobs(self, jobStatus=None):
         """
@@ -107,7 +102,6 @@ class Server(BaseServer):
     
     @lru_cache(maxsize=None)
     def _http_get(self, path=None):
->>>>>>> Stashed changes
         """
         :return:
         """
