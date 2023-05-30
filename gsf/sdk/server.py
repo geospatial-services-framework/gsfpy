@@ -84,6 +84,7 @@ class Server(BaseServer):
     def getJobs(self, jobStatus=None, limit=-1):
         """
         :param jobStatus: Filters output with jobStatus 
+        :param limit: limit parameter of jobs url  
         :return: a job list
         """
         jobs = self._http_get('jobs?limit='+str(limit))
