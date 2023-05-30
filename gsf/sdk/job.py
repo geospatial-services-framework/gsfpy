@@ -52,12 +52,12 @@ results: ${results}
     @property
     def progress_message(self):
         status = self._http_get()
-        return str(status['jobMessage'])
+        return str(status['jobMessage']) if "jobMessage" in status else ""
 
     @property
     def error_message(self):
         status = self._http_get()
-        return str(status['jobError'])
+        return str(status['jobError']) if "jobError" in status else ""
 
     @property
     def results(self):
