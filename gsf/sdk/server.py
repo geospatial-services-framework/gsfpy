@@ -81,12 +81,12 @@ class Server(BaseServer):
         """
         return Job('/'.join((self._url, 'jobs', str(job_id))))
     
-    def getJobs(self, jobStatus=None):
+    def getJobs(self, jobStatus=None, limit=-1):
         """
         :param jobStatus: Filters output with jobStatus 
         :return: a job list
         """
-        jobs = self._http_get('jobs')
+        jobs = self._http_get('jobs?limit='+str(limit))
         jobs_list = []
         for job in jobs['jobs'] :
             if jobStatus is None or job['jobStatus'] == jobStatus :
