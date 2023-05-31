@@ -20,7 +20,7 @@ class Server(BaseServer):
                                 '', None, None, None))
 
         self._info_path = 'reports/server-info'
-        self._server_info = self._http_get(self._info_path)
+        self._server_info = self._http_get(path=self._info_path)
         self._services_list = []
 
     @property
@@ -30,7 +30,7 @@ class Server(BaseServer):
     @property
     def port(self):
         return self._port
-    
+
     @property
     def description(self):
         """Returns the description of the server"""
@@ -40,9 +40,9 @@ class Server(BaseServer):
     def version(self):
         """Returns the GSF version of the server"""
         return self._server_info['version']
-    
+
     @property
-    def requestHandlers(self) :
+    def requestHandlers(self):
         """Returns a list of requestHandlers"""
         handlersList = []
         for handler in self._server_info['configuration']['requestHandlers']:
@@ -57,11 +57,16 @@ class Server(BaseServer):
         for service in services_info['services']:
             self._services_list.append(service['name'])
         return self._services_list
-    
+
     @property
     def info(self):
         """ Returns server information full"""
         return self._server_info
+
+    @property
+    def url(self):
+        """ Returns server information full"""
+        return self._url
 
     def service(self, service_name):
         """
@@ -70,7 +75,7 @@ class Server(BaseServer):
         :param service_name: The name of the service to return.
         :return: Returns the gsf.service object.
         """
-        if not service_name in self._services_list : 
+        if not service_name in self._services_list:
             return None
         return Service('/'.join((self._url, self._services_path, service_name)))
 
@@ -80,27 +85,46 @@ class Server(BaseServer):
         :return: a Job object
         """
         return Job('/'.join((self._url, 'jobs', str(job_id))))
-    
-    def getJobs(self, jobStatus=None, limit=-1):
+
+    def getJobs(self, jobStatus=None, limit=10000000, offset=0, taskName=None):
         """
-        :param jobStatus: Filters output with jobStatus 
+        :param jobStatus: Filters with jobStatus 
         :param limit: limit parameter of jobs url  
+        :param offset: offset parameter 
+        :taskName: Filters on taskName
         :return: a job list
         """
-        jobs = self._http_get('jobs?limit='+str(limit))
-        jobs_list = []
-        for job in jobs['jobs'] :
-            if jobStatus is None or job['jobStatus'] == jobStatus :
-                jobs_list.append(job)
-        return jobs_list
-    
+        # GSF 2.X version using /jobs
+        if self.version.startswith("2."):
+            jobs = self._http_get(path='jobs?limit='+str(limit)+'&offset='+str(offset))
+
+        # GSF 3.X version using /searchJobs
+        elif self.version.startswith("3."):
+            jobsearch = {
+                'limit': limit,
+                'offset' : offset,
+                'totals': 'all',
+                'sort' : [["jobSubmitted",-1]],
+                'query' : {}
+            }
+            if jobStatus is not None:
+                jobsearch['query']['jobStatus'] = {'$eq': jobStatus }
+            if taskName is not None:
+                    jobsearch['query']['taskName'] = {"$eq": taskName}
+
+            response = requests.post(
+                '/'.join((self._url, "searchJobs")), json=jobsearch)
+            jobs = response.json()
+
+        return jobs['jobs']
+
     @property
     def jobs(self):
         """
         :return: all jobs as a list
         """
         return self.getJobs()
-    
+
     @lru_cache(maxsize=None)
     def _http_get(self, path=None):
         """
