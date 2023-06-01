@@ -151,7 +151,13 @@ results: ${results}
 
         :return: None
         """
-         
+    @abstractmethod
+    def cancel(self):
+        """
+        Cancel the job. 
+
+        :return: None
+        """
     @staticmethod
     def JobStatusList():
         """

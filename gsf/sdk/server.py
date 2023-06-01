@@ -7,14 +7,17 @@ from urllib.parse import urlunparse
 from ..error import ServerNotFoundError
 from ..error import ServiceNotFoundError
 from ..error import JobStatusNotFoundError
+from ..error import JobNotFoundError
 from ..server import Server as BaseServer
 from .service import Service
 from .job import Job
+
 
 class Server(BaseServer):
     """
     The Server connects to GSF using HTTP requests.
     """
+
     def __init__(self, *args, **kwargs):
         super(Server, self).__init__(*args, **kwargs)
         self._services_path = 'services'
@@ -87,41 +90,54 @@ class Server(BaseServer):
         """
         return Job('/'.join((self._url, 'jobs', str(job_id))))
 
-    def getJobs(self, jobStatus=None, limit=10000000, offset=0, taskName=None):
+    def getJobs(self, jobStatus=None, limit=None, offset=0, taskName=None):
         """
-        :param jobStatus: Filters with jobStatus 
-        :param limit: limit parameter of jobs url  
-        :param offset: offset parameter 
-        :taskName: Filters on taskName
+        :param jobStatus: Filter with jobStatus 
+        :param limit: limit parameter of /jobs url or /searchJob post request
+        :param offset: offset parameter of /jobs url or /searchJob post request
+        :taskName: Filter on taskName
         :return: a job list
         """
 
         if jobStatus is not None:
-            if jobStatus.lower() not in Job.JobStatusList() :
+            if jobStatus.lower() not in Job.JobStatusList():
                 raise JobStatusNotFoundError(f"Status {jobStatus} not found")
         # GSF 2.X version using /jobs
         if self.version.startswith("2."):
             jobs = []
-            rawjobs = self._http_get(path='jobs?limit='+str(limit)+'&offset='+str(offset))
-            if jobStatus is not None:
+            url_path = 'jobs?offset='+str(offset)
+            limitstr = '&limit='+str(limit) if limit is not None else '&limit=-1'
+            rawjobs = self._http_get(
+                path=url_path+limitstr)
+            if jobStatus is not None and taskName is not None:
+                for job in rawjobs['jobs']:
+                    if job['jobStatus'].casefold() == jobStatus.casefold() and job['taskName'].casefold() == taskName.casefold():
+                        jobs.append(job)
+            elif jobStatus is not None:
                 for job in rawjobs['jobs']:
                     if job['jobStatus'].casefold() == jobStatus.casefold():
                         jobs.append(job)
-            else : jobs = rawjobs['jobs']
+            elif taskName is not None:
+                for job in rawjobs['jobs']:
+                    if job['taskName'].casefold() == taskName.casefold():
+                        jobs.append(job)
+            else:
+                jobs = rawjobs['jobs']
 
         # GSF 3.X version using /searchJobs
         elif self.version.startswith("3."):
             jobsearch = {
-                'limit': limit,
-                'offset' : offset,
+                'offset': offset,
                 'totals': 'all',
-                'sort' : [["jobSubmitted",-1]],
-                'query' : {}
+                'sort': [["jobSubmitted", -1]],
+                'query': {}
             }
+            if limit is not None :
+                jobsearch['limit'] = str(limit)
             if jobStatus is not None:
-                jobsearch['query']['jobStatus'] = {'$eq': jobStatus }
+                jobsearch['query']['jobStatus'] = {'$eq': jobStatus}
             if taskName is not None:
-                    jobsearch['query']['taskName'] = {"$eq": taskName}
+                jobsearch['query']['taskName'] = {"$eq": taskName}
 
             response = requests.post(
                 '/'.join((self._url, "searchJobs")), json=jobsearch)
@@ -137,6 +153,16 @@ class Server(BaseServer):
         """
         return self.getJobs()
 
+    def cancelJob(self, jobId):
+        """
+        :param jobId: the job id to cancel
+        """
+        response = requests.put('/'.join((self._url, "jobs", str(jobId))))
+        if response.status_code >= 400:
+            raise JobNotFoundError(
+                f'HTTP code {response.status_code}, Reason: {response.text}')
+        return response.json()
+
     @lru_cache(maxsize=None)
     def _http_get(self, path=None):
         """
@@ -145,7 +171,8 @@ class Server(BaseServer):
         try:
             response = requests.get('/'.join((self._url, path)))
             if response.status_code >= 400:
-                raise ServerNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
+                raise ServerNotFoundError(
+                    f'HTTP code {response.status_code}, Reason: {response.text}')
         except ConnectionError as err:
             raise ServerNotFoundError(f'Reason: {err}') from err
         return response.json()

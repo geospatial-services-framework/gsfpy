@@ -33,11 +33,19 @@ class Server(metaclass=GSFMeta):
      >>> print(services, type(services))
      ([u'IDL', u'ENVI'], <type 'list'>)
 	 
-	 Investigate jobs on the GSF server.
+	 Investigate on a single job on the GSF server.
 	 
 	 >>> job = server.job(1)
 	 >>> print(job.results)
 
+    Investigate on a many jobs on the GSF server.
+	 
+	 >>> jobs = server.jobs
+	 >>> print(jobs) 
+
+     or 
+	 >>> jobs = server.getJobs(jobStatus="Succeeded|Failed|Started|Accepted")
+	 >>> print(jobs) 
 
     """
 
@@ -136,15 +144,26 @@ port: ${port}
         """
         pass
 
-    def getJobs(self, jobStatus=None, limit=10000000, offset=0, taskName=None):
+    @abstractmethod
+    def getJobs(self, jobStatus=None, limit=None, offset=0, taskName=None):
         """
+        Returns a list of jobs and allow filtering 
         :param jobStatus: Filters with jobStatus 
-        :param limit: limit parameter of jobs url  
-        :param offset: offset parameter 
+        :param limit: limit parameter of /jobs url or /searchJob post request  
+        :param offset: offset parameter of /jobs url or /searchJob post request
         :taskName: Filters on taskName
         :return: a job list
         """
         pass
+
+    @abstractmethod
+    def cancelJob(self, jobId):
+        """
+        :param jobId: The job Id to cancel
+        :return: put response
+        """
+        pass
+    
     @abstractproperty
     def jobs(self):
         """

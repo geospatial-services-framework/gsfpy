@@ -68,6 +68,12 @@ results: ${results}
         while not re.match('(Failed|Succeeded)', self.status):
             time.sleep(1)
 
+    def cancel(self):
+        response = requests.put(self._url)
+        if response.status_code >= 400:
+            raise JobNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
+        return response.json()
+
     def _http_get(self):
         response = requests.get(self._url)
         if response.status_code >= 400:
