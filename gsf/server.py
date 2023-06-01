@@ -76,9 +76,33 @@ port: ${port}
         pass
 
     @abstractproperty
+    def url(self):
+        """
+        Returns the server url.
+
+        :return: a string
+        """
+
+    @abstractproperty
     def port(self):
         """
         Returns the server port number.
+
+        :return: a string
+        """
+
+    @abstractproperty
+    def description(self):
+        """
+        Returns the server port number.
+
+        :return: a string
+        """
+
+    @abstractproperty
+    def version(self):
+        """
+        Returns the GSF version.
 
         :return: a string
         """
@@ -111,3 +135,22 @@ port: ${port}
         :return: GSF Job object
         """
         pass
+
+    def getJobs(self, jobStatus=None, limit=10000000, offset=0, taskName=None):
+        """
+        :param jobStatus: Filters with jobStatus 
+        :param limit: limit parameter of jobs url  
+        :param offset: offset parameter 
+        :taskName: Filters on taskName
+        :return: a job list
+        """
+        pass
+    @abstractproperty
+    def jobs(self):
+        """
+        Returns all jobs of the server 
+
+        :return: a string
+        """
+
+

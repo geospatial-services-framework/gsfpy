@@ -5,6 +5,7 @@ from requests.exceptions import ConnectionError
 from urllib.parse import urlunparse
 
 from ..error import ServerNotFoundError
+from ..error import ServiceNotFoundError
 from ..server import Server as BaseServer
 from .service import Service
 from .job import Job
@@ -49,7 +50,6 @@ class Server(BaseServer):
             handlersList.append(handler['type'])
         return handlersList
 
-    @property
     def services(self):
         """Returns a list of services"""
         services_info = self._http_get(self._services_path)
@@ -76,7 +76,7 @@ class Server(BaseServer):
         :return: Returns the gsf.service object.
         """
         if not service_name in self._services_list:
-            return None
+            raise ServiceNotFoundError(f"Service {service_name} not found")
         return Service('/'.join((self._url, self._services_path, service_name)))
 
     def job(self, job_id):

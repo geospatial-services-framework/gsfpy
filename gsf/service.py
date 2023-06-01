@@ -77,7 +77,6 @@ description: ${description}
     def tasks(self):
         """
         Returns a list of task names available on this service
-
         :return: a list
         """
         pass

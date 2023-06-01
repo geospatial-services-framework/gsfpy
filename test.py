@@ -6,7 +6,7 @@ print(server.version)
 print(server.description)
 print(server.requestHandlers)
 
-services = server.services
+services = server.services()
 
 print(services)
 
@@ -14,7 +14,7 @@ envi_service = server.service('ENVI')
 
 python_service = server.service("python")
 
-tasks = envi_service.tasks
+tasks = envi_service.tasks()
 
 inputRasterUrl = server._url+"/data/qb_boulder_msi"
 inputParameters = {

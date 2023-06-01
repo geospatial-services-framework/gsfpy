@@ -20,10 +20,19 @@ class Service(BaseService):
         self._service_info = self._http_get()
 
     def task(self, task_name):
+        """
+        Returns a GSF task object. See GSF Task for example.
+
+        :param: task_name: The name of the task to retrieve.
+        :return: a GSF Task object
+        """
         return Task('/'.join((self._url, 'tasks', task_name)))
 
-    @property
     def tasks(self):
+        """
+        Returns a list of task names available on this service
+        :return: a list
+        """
         return self._http_get('tasks')['tasks']
 
     @property
