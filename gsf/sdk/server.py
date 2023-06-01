@@ -6,6 +6,7 @@ from urllib.parse import urlunparse
 
 from ..error import ServerNotFoundError
 from ..error import ServiceNotFoundError
+from ..error import JobStatusNotFoundError
 from ..server import Server as BaseServer
 from .service import Service
 from .job import Job
@@ -94,9 +95,19 @@ class Server(BaseServer):
         :taskName: Filters on taskName
         :return: a job list
         """
+
+        if jobStatus is not None:
+            if jobStatus.lower() not in Job.JobStatusList() :
+                raise JobStatusNotFoundError(f"Status {jobStatus} not found")
         # GSF 2.X version using /jobs
         if self.version.startswith("2."):
-            jobs = self._http_get(path='jobs?limit='+str(limit)+'&offset='+str(offset))
+            jobs = []
+            rawjobs = self._http_get(path='jobs?limit='+str(limit)+'&offset='+str(offset))
+            if jobStatus is not None:
+                for job in rawjobs['jobs']:
+                    if job['jobStatus'].casefold() == jobStatus.casefold():
+                        jobs.append(job)
+            else : jobs = rawjobs['jobs']
 
         # GSF 3.X version using /searchJobs
         elif self.version.startswith("3."):
@@ -114,9 +125,10 @@ class Server(BaseServer):
 
             response = requests.post(
                 '/'.join((self._url, "searchJobs")), json=jobsearch)
-            jobs = response.json()
+            rawjobs = response.json()
+            jobs = rawjobs['jobs']
 
-        return jobs['jobs']
+        return jobs
 
     @property
     def jobs(self):

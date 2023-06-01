@@ -151,4 +151,10 @@ results: ${results}
 
         :return: None
         """
-        pass
+         
+    @staticmethod
+    def JobStatusList():
+        """
+        Defines the list of possible job statuses
+        """
+        return set(("succeeded","failed","started","accepted"))
