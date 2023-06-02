@@ -22,7 +22,7 @@ class Job(BaseJob):
         def __str__(self):
             status = self._http_get()
             props = dict(job_id=status['jobId'],
-                         status=_STATUS_MAP[status['jobStatus']],
+                         status=status['jobStatus'],
                          progress=status['jobProgress'],
                          progress_message=str(status['jobProgressMessage']),
                          error_message=str(status['jobErrorMessage']),
