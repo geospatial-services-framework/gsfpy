@@ -11,12 +11,12 @@ with open(os.path.join(here, 'README.rst')) as f:
     long_description = f.read()
 
 setup(name='gsf',
-      version='2.1.0',
+      version='3.0.0',
       description='GSF Py',
       long_description=long_description,
       url='https://github.com/geospatial-services-framework/gsfpy',
-      author='NV5 Visual Information Solutions, Inc.',
-      author_email='gsf@harris.com',
+      author='NV5 Geospatial Software Solutions',
+      author_email='gsf@nv5.com',
       install_requires=['requests'],
       packages=find_packages(),
       license='MIT',
