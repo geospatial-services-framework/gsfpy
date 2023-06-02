@@ -54,6 +54,10 @@ class Job(metaclass=GSFMeta):
     Wait for job to be done.
 
     >>> job.wait_for_done()
+
+    Cancel a job 
+
+    >>> job.cancel()
 	
     Investigate job information and results.
 	
@@ -154,7 +158,7 @@ results: ${results}
     @abstractmethod
     def cancel(self):
         """
-        Cancel the job. 
+        Cancels the job. 
 
         :return: None
         """

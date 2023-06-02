@@ -43,10 +43,15 @@ class Server(metaclass=GSFMeta):
 	 >>> jobs = server.jobs
 	 >>> print(jobs) 
 
-     or 
-	 >>> jobs = server.getJobs(jobStatus="Succeeded|Failed|Started|Accepted")
+     or with filtering on job status
+
+	 >>> jobs = server.getJobs(jobStatus="Succeeded")
 	 >>> print(jobs) 
 
+     or with filtering on task name
+
+    >>> jobs = server.getJobs(taskName="ExportRasterToPng")
+	>>> print(jobs) 
     """
 
     def __str__(self):
@@ -147,7 +152,7 @@ port: ${port}
     @abstractmethod
     def getJobs(self, jobStatus=None, limit=None, offset=0, taskName=None):
         """
-        Returns a list of jobs and allow filtering 
+        Returns a list of jobs and allows filtering 
         :param jobStatus: Filters with jobStatus 
         :param limit: limit parameter of /jobs url or /searchJob post request  
         :param offset: offset parameter of /jobs url or /searchJob post request
