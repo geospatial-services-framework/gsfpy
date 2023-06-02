@@ -10,10 +10,12 @@ from ..job import Job as BaseJob
 from ..dict import Dict as gsfdict
 from ..error import JobNotFoundError
 
+
 class Job(BaseJob):
     """
     Creates a GSF job used for querying job information.
     """
+
     def __init__(self,  url):
         self._url = url
 
@@ -69,15 +71,20 @@ results: ${results}
             time.sleep(1)
 
     def cancel(self):
-        response = requests.put(self._url)
+        request_body = {
+            "jobStatus": "CancelRequested"
+        }
+        response = requests.put(self._url, json=request_body)
         if response.status_code >= 400:
-            raise JobNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
+            raise JobNotFoundError(
+                f'HTTP code {response.status_code}, Reason: {response.text}')
         return response.json()
 
     def _http_get(self):
         response = requests.get(self._url)
         if response.status_code >= 400:
-            raise JobNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
+            raise JobNotFoundError(
+                f'HTTP code {response.status_code}, Reason: {response.text}')
         return response.json()
 
     def _build_result(self, status):

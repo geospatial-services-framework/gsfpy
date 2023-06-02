@@ -105,10 +105,9 @@ class Server(BaseServer):
         # GSF 2.X version using /jobs
         if self.version.startswith("2."):
             jobs = []
-            url_path = 'jobs?offset='+str(offset)
-            limitstr = '&limit='+str(limit) if limit is not None else '&limit=-1'
+            url_path = 'jobs?offset='+str(offset)+('&limit='+str(limit) if limit is not None else '&limit=-1')
             rawjobs = self._http_get(
-                path=url_path+limitstr)
+                path=url_path)
             if jobStatus is not None and taskName is not None:
                 for job in rawjobs['jobs']:
                     if job['jobStatus'].casefold() == jobStatus.casefold() and job['taskName'].casefold() == taskName.casefold():
@@ -157,7 +156,10 @@ class Server(BaseServer):
         """
         :param jobId: the job id to cancel
         """
-        response = requests.put('/'.join((self._url, "jobs", str(jobId))))
+        request_body = {
+            "jobStatus": "CancelRequested"
+        }
+        response = requests.put('/'.join((self._url, "jobs", str(jobId))), json=request_body)
         if response.status_code >= 400:
             raise JobNotFoundError(
                 f'HTTP code {response.status_code}, Reason: {response.text}')
