@@ -89,14 +89,6 @@ port: ${port}
         pass
 
     @abstractproperty
-    def url(self):
-        """
-        Returns the server url.
-
-        :return: a string
-        """
-
-    @abstractproperty
     def port(self):
         """
         Returns the server port number.
@@ -107,19 +99,39 @@ port: ${port}
     @abstractproperty
     def description(self):
         """
-        Returns the server port number.
+        Returns the server description.
 
         :return: a string
         """
 
     @abstractproperty
+    def requestHandlers(self):
+        """
+        Returns the list of request handler types implemented on the GSF server
+
+        :return: a list of strings
+        """
+    @abstractproperty
     def version(self):
         """
-        Returns the GSF version.
+        Returns the server GSF version.
 
         :return: a string
         """
+    @abstractproperty
+    def info(self):
+        """
+        Returns the server information
 
+        :return: a string
+        """   
+    @abstractproperty
+    def url(self):
+        """
+        Returns the server url
+
+        :return: a string
+        """   
     @abstractmethod
     def services(self):
         """
@@ -153,6 +165,7 @@ port: ${port}
     def getJobs(self, jobStatus=None, limit=None, offset=0, taskName=None):
         """
         Returns a list of jobs and allows filtering 
+
         :param jobStatus: Filters with jobStatus 
         :param limit: limit parameter of /jobs url or /searchJob post request  
         :param offset: offset parameter of /jobs url or /searchJob post request
@@ -160,21 +173,21 @@ port: ${port}
         :return: a job list
         """
         pass
-
-    @abstractmethod
-    def cancelJob(self, jobId):
-        """
-        :param jobId: The job Id to cancel
-        :return: put response
-        """
-        pass
-    
     @abstractproperty
     def jobs(self):
         """
         Returns all jobs of the server 
 
-        :return: a string
+        :return: a list 
         """
+    @abstractmethod
+    def cancelJob(self, jobId):
+        """
+        Cancels a job on the server
 
+        :param jobId: The job Id to cancel
+        :return: put response "message": "Cancel Sent"
+        """
+        pass
+    
 

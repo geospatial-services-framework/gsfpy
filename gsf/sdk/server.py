@@ -30,10 +30,12 @@ class Server(BaseServer):
 
     @property
     def name(self):
+        """Returns the server host name"""
         return self._server
 
     @property
     def port(self):
+        """Returns the server port"""
         return self._port
 
     @property
@@ -48,11 +50,21 @@ class Server(BaseServer):
 
     @property
     def requestHandlers(self):
-        """Returns a list of requestHandlers"""
+        """Returns a list of the requestHandlers types"""
         handlersList = []
         for handler in self._server_info['configuration']['requestHandlers']:
             handlersList.append(handler['type'])
         return handlersList
+    
+    @property
+    def info(self):
+        """ Returns server information full"""
+        return self._server_info
+
+    @property
+    def url(self):
+        """ Returns the server url """
+        return self._url
 
     def services(self):
         """Returns a list of services"""
@@ -61,16 +73,6 @@ class Server(BaseServer):
         for service in services_info['services']:
             self._services_list.append(service['name'])
         return self._services_list
-
-    @property
-    def info(self):
-        """ Returns server information full"""
-        return self._server_info
-
-    @property
-    def url(self):
-        """ Returns server information full"""
-        return self._url
 
     def service(self, service_name):
         """
