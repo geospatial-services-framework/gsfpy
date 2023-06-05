@@ -159,10 +159,15 @@ class Server(BaseServer):
         :param jobId: the job id to cancel
         :return: the HTTP response "message": "Cancel Sent"
         """
-        request_body = {
-            "jobStatus": "CancelRequested"
-        }
-        response = requests.put('/'.join((self._url, "jobs", str(jobId))), json=request_body)
+        # if GSF 2.X send a delete request to http://server/jobId
+        if self.version.startswith("2."):
+            response = requests.delete("/".join((self.url),jobId))
+        # if GSF 3.X send put request 
+        elif self.version.startswith("3."):
+            request_body = {
+                "jobStatus": "CancelRequested"
+            }
+            response = requests.put('/'.join((self._url, "jobs", str(jobId))), json=request_body)
         if response.status_code >= 400:
             raise JobNotFoundError(
                 f'HTTP code {response.status_code}, Reason: {response.text}')
