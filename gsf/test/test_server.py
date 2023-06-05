@@ -30,6 +30,10 @@ class TestServer(unittest.TestCase):
         start_time = time.time()
         server = Server(config.GSF_SERVER['name'])
         self.assertIsInstance(server, BaseServer, 'server object does not implement gsf.Server')
+        self.assertIsInstance(server.version,str)
+        self.assertIsInstance(server.description,str)
+        self.assertIsInstance(server.requestHandlers,list)
+        self.assertIsInstance(server.jobs,list)
 
     def test_services(self):
         """Verify services returns a list."""

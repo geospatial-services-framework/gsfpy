@@ -60,6 +60,11 @@ class TestJob(unittest.TestCase):
         self.assertIn('OUTPUT_RASTER', self.job.results)
         self.assertIn('url', self.job.results['OUTPUT_RASTER'])
 
+    def test_cancel(self):
+        self.job = self.task.submit(config.GSF_TASK['parameters'])
+        cancel = self.job.cancel()
+        self.assertEqual(cancel['message'],"Cancel Sent")
+
     def test_invalid_id(self):
         """Verify getting an invalid job id throws and exception."""
         job = self.server.job(-1)
