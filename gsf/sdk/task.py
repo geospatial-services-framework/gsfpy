@@ -16,6 +16,7 @@ class Task(BaseTask):
     """
     def __init__(self, *args, **kwargs):
         super(Task, self).__init__(*args, **kwargs)
+        self.info = self._http_get()
 
     @property
     def uri(self):
@@ -23,28 +24,23 @@ class Task(BaseTask):
 
     @property
     def name(self):
-        info = self._http_get()
-        return str(info['name'])
+        return str(self.info['name'])
 
     @property
     def service_name(self):
-        info = self._http_get()
-        return str(info['serviceName'])
+        return str(self.info['serviceName'])
 
     @property
     def display_name(self):
-        info = self._http_get()
-        return str(info['displayName'])
+        return str(self.info['displayName'])
 
     @property
     def description(self):
-        info = self._http_get()
-        return str(info['description'])
+        return str(self.info['description'])
 
     @property
     def parameters(self):
-        info = self._http_get()
-        return info['parameters']
+        return self.info['parameters']
 
     def _jobs_url(self):
         """Returns the jobs url"""
@@ -78,16 +74,18 @@ class Task(BaseTask):
             raise TaskNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
         status = response.json()
         # it seems that Eric used jobID with capitalized ID so we keep it
-        jobid_str =  str(status['jobID']) if 'jobID' in status else  ''
-        jobid_str =  str(status['jobId']) if 'jobId' in status else  ''
+        if 'jobID' in status :
+            jobid_str =  str(status['jobID'])
+        if 'jobId' in status:
+            jobid_str =  str(status['jobId']) 
                                 
         return Job('/'.join((jobs_url, jobid_str)))
 
     def _reformat_info(self, parameters, direction):
         for parameter in parameters:
             parameter['name'] = str(parameter['name'])
-            parameter['description'] = str(parameter['description'])
-            parameter['display_name'] = str(parameter.pop('displayName'))
+            parameter['description'] = str(parameter['description']) if 'description' in parameter else ""
+            parameter['display_name'] = str(parameter.pop('displayName')) if 'displayName' in parameter else ""
             if parameter['type'].count('['):
                 parameter['dimensions'] = '[' + parameter['type'].split('[')[1]
             parameter['type'] = str(parameter.pop('type').split('[')[0])
