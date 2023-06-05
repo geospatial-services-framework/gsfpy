@@ -38,39 +38,63 @@ results: ${results}
 
     @property
     def job_id(self):
+        """
+        :return: the jobId of the job
+        """
         status = self._http_get()
         return status['jobId']
 
     @property
     def status(self):
+        """
+        :return: the jobStatus of the job
+        """
         status = self._http_get()
         return status['jobStatus']
 
     @property
     def progress(self):
+        """
+        :return: the jobProgress of the job
+        """
         status = self._http_get()
         return status['jobProgress']
 
     @property
     def progress_message(self):
+        """
+        :return: the jobMessage of the job
+        """
         status = self._http_get()
         return str(status['jobMessage']) if "jobMessage" in status else ""
 
     @property
     def error_message(self):
+        """
+        :return: the jobError message of the job
+        """
         status = self._http_get()
         return str(status['jobError']) if "jobError" in status else ""
 
     @property
     def results(self):
+        """
+        :return: the results of the job
+        """
         status = self._http_get()
         return self._build_result(status)
 
     def wait_for_done(self):
+        """
+        Wait until job completes
+        """
         while not re.match('(Failed|Succeeded)', self.status):
             time.sleep(1)
 
     def cancel(self):
+        """
+        :return: the put response "message": "Cancel Sent"
+        """
         request_body = {
             "jobStatus": "CancelRequested"
         }
@@ -81,6 +105,9 @@ results: ${results}
         return response.json()
 
     def _http_get(self):
+        """
+        :return: the get response of job url
+        """       
         response = requests.get(self._url)
         if response.status_code >= 400:
             raise JobNotFoundError(
@@ -88,6 +115,9 @@ results: ${results}
         return response.json()
 
     def _build_result(self, status):
+        """
+        :return: the results from the status 
+        """    
         out_result = gsfdict()
         for out_param, value in status['jobResults'].items():
             # remove all the 'best' nonsense

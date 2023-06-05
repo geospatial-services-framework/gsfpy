@@ -165,5 +165,5 @@ results: ${results}
         """
         Cancels the job. 
 
-        :return: None
+        :return: the put response "message": "Cancel Sent"
         """

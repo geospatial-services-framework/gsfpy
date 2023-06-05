@@ -157,6 +157,7 @@ class Server(BaseServer):
     def cancelJob(self, jobId):
         """
         :param jobId: the job id to cancel
+        :return: the HTTP response "message": "Cancel Sent"
         """
         request_body = {
             "jobStatus": "CancelRequested"
