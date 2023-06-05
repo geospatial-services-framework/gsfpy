@@ -37,13 +37,13 @@ class Service(BaseService):
 
     @property
     def name(self):
-        #service_info = self._http_get()
         return str(self._service_info['name'])
     
     @property
     def description(self):
-        #service_info = self._http_get()
-        return str(self._service_info['name'])
+        # Service may have a description
+        description = self._service_info['description'] if 'description' in  self._service_info else ''
+        return description
 
     @lru_cache(maxsize=None)
     def _http_get(self, path=None):
