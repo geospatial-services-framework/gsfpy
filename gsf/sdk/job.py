@@ -92,29 +92,6 @@ results: ${results}
         while not re.match('(Failed|Succeeded)', self.status):
             time.sleep(1)
 
-    def cancel(self):
-        """
-        :return: the put response "message": "Cancel Sent"
-        """
-         # if GSF 2.X send a delete request to http://server/jobId
-        if self.version.startswith("2."):
-            parsed_url = urlparse(self._url)
-            delete_url =  urlunparse((parsed_url.scheme,
-                          parsed_url.netloc,
-                          str(self.job_id),
-                          None, None, None))
-            response = requests.delete(delete_url)
-        # if GSF 3.X send put request 
-        elif self.version.startswith("3."):
-            request_body = {
-                "jobStatus": "CancelRequested"
-            }
-            response = requests.put(self._url, json=request_body)
-        if response.status_code >= 400:
-            raise JobNotFoundError(
-                f'HTTP code {response.status_code}, Reason: {response.text}')
-        return response.json()
-
     def _http_get(self):
         """
         :return: the get response of job url

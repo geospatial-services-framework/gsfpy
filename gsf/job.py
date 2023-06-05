@@ -160,10 +160,4 @@ results: ${results}
 
         :return: None
         """
-    @abstractmethod
-    def cancel(self):
-        """
-        Cancels the job. 
 
-        :return: the put response "message": "Cancel Sent"
-        """
