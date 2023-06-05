@@ -6,7 +6,11 @@ from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
 
+
+
+
 class Job(metaclass=GSFMeta):
+
     """
     A GSF Job object connects to a GSF Job and its status.
 
@@ -71,6 +75,7 @@ class Job(metaclass=GSFMeta):
     'Invalid value for parameter: INPUT_RASTER. Error: File: ...
 
     """
+    JOB_STATUS_MAP = {"succeeded","failed","started","accepted"}
 
     def __str__(self):
         props = dict(job_id=self.job_id,
@@ -162,9 +167,3 @@ results: ${results}
 
         :return: None
         """
-    @staticmethod
-    def JobStatusList():
-        """
-        Defines the list of possible job statuses
-        """
-        return set(("succeeded","failed","started","accepted"))

@@ -102,7 +102,7 @@ class Server(BaseServer):
         """
 
         if jobStatus is not None:
-            if jobStatus.lower() not in Job.JobStatusList():
+            if jobStatus.lower() not in Job.JOB_STATUS_MAP:
                 raise JobStatusNotFoundError(f"Status {jobStatus} not found")
         # GSF 2.X version using /jobs
         if self.version.startswith("2."):
