@@ -32,7 +32,7 @@ class Task(BaseTask):
 
     @property
     def display_name(self):
-        return str(self.info['displayName']) if 'displayName' in self.info else ''
+        return str(self.info['displayName']) if 'displayName' in self.info else str(self.info['name'])
 
     @property
     def description(self):
@@ -85,7 +85,7 @@ class Task(BaseTask):
         for parameter in parameters:
             parameter['name'] = str(parameter['name'])
             parameter['description'] = str(parameter['description']) if 'description' in parameter else ""
-            parameter['display_name'] = str(parameter.pop('displayName')) if 'displayName' in parameter else ""
+            parameter['display_name'] = str(parameter.pop('displayName')) if 'displayName' in parameter else str(parameter['name'])
             if parameter['type'].count('['):
                 parameter['dimensions'] = '[' + parameter['type'].split('[')[1]
             parameter['type'] = str(parameter.pop('type').split('[')[0])
