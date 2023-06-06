@@ -19,18 +19,19 @@ class Job(BaseJob):
 
     def __init__(self,  url):
         self._url = url
+        self._status = None
 
         def __str__(self):
-            status = self._http_get()
-            props = dict(job_id=status['jobId'],
-                         status=status['jobStatus'],
-                         progress=status['jobProgress'],
-                         progress_message=str(status['jobProgressMessage']),
-                         error_message=str(status['jobErrorMessage']),
+            self._status = self._http_get()
+            props = dict(job_id=self._status['jobId'],
+                         status=self._status['status'],
+                         progress=self._status['jobProgress'],
+                         progress_message=str(self._status['jobProgressMessage']),
+                         error_message=str(self._status['jobErrorMessage']),
                          results=self._build_result())
             return Template('''
 job_id: ${job_id}
-status: ${status}
+self._status: ${self._status}
 progress: ${progress}
 progress_message: ${progress_message}
 error_message: ${error_message}
@@ -42,48 +43,49 @@ results: ${results}
         """
         :return: the jobId of the job
         """
-        status = self._http_get()
-        return status['jobId']
+        if self._status is None :
+            self._status = self._http_get()
+        return self._status['jobId']
 
     @property
     def status(self):
         """
-        :return: the jobStatus of the job
+        :return: the jobself._status of the job
         """
-        status = self._http_get()
-        return status['jobStatus']
+        self._status = self._http_get()
+        return self._status['jobStatus']
 
     @property
     def progress(self):
         """
         :return: the jobProgress of the job
         """
-        status = self._http_get()
-        return status['jobProgress']
+        self._status = self._http_get()
+        return self._status['jobProgress']
 
     @property
     def progress_message(self):
         """
         :return: the jobMessage of the job
         """
-        status = self._http_get()
-        return str(status['jobMessage']) if "jobMessage" in status else ""
+        self._status = self._http_get()
+        return str(self._status['jobMessage']) if "jobMessage" in self._status else ""
 
     @property
     def error_message(self):
         """
         :return: the jobError message of the job
         """
-        status = self._http_get()
-        return str(status['jobError']) if "jobError" in status else ""
+        self._status = self._http_get()
+        return str(self._status['jobError']) if "jobError" in self._status else ""
 
     @property
     def results(self):
         """
         :return: the results of the job
         """
-        status = self._http_get()
-        return self._build_result(status)
+        self._status = self._http_get()
+        return self._build_result()
 
     def wait_for_done(self):
         """
@@ -99,15 +101,18 @@ results: ${results}
         response = requests.get(self._url)
         if response.status_code >= 400:
             raise JobNotFoundError(
-                f'HTTP code {response.status_code}, Reason: {response.text}')
+                f'HTTP code {response.self._status_code}, Reason: {response.text}')
         return response.json()
 
-    def _build_result(self, status):
+    def _build_result(self):
         """
-        :return: the results from the status 
+        :return: the results from the self._status 
         """    
         out_result = gsfdict()
-        for out_param, value in status['jobResults'].items():
+        for out_param, value in self._status['jobResults'].items():
             # remove all the 'best' nonsense
-            out_result[out_param] = value['best']
+            if 'best' in value :
+                out_result[out_param] = value['best']
+            else :
+                out_result[out_param] = value
         return out_result
