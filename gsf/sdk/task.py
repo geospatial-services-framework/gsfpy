@@ -32,11 +32,11 @@ class Task(BaseTask):
 
     @property
     def display_name(self):
-        return str(self.info['displayName'])
+        return str(self.info['displayName']) if 'displayName' in self.info else ''
 
     @property
     def description(self):
-        return str(self.info['description'])
+        return str(self.info['description']) if 'description' in self.info else ''
 
     @property
     def parameters(self):

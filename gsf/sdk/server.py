@@ -81,6 +81,9 @@ class Server(BaseServer):
         :param service_name: The name of the service to return.
         :return: Returns the gsf.service object.
         """
+        # Just in case the services property is not called before
+        if len(self._services_list) == 0 :
+            self.services()
         if not service_name in self._services_list:
             raise ServiceNotFoundError(f"Service {service_name} not found")
         return Service('/'.join((self._url, self._services_path, service_name)))
