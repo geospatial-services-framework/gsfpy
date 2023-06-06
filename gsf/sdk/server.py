@@ -159,6 +159,13 @@ class Server(BaseServer):
         :param jobId: the job id to cancel
         :return: the HTTP response "message": "Cancel Sent"
         """
+
+        job = self.job(jobId)
+        jobStatus = job.status
+        if jobStatus != 'Started':
+            raise JobNotFoundError(
+                f'Job id {jobId} is not running, status is {jobStatus}')
+        
         # if GSF 2.X send a delete request to http://server/job-console/jobId
         if self.version.startswith("2."):
             response = requests.delete("/".join((self.url,"job-console",str(jobId))))
