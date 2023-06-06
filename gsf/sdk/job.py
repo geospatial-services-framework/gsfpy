@@ -20,6 +20,11 @@ class Job(BaseJob):
     def __init__(self,  url):
         self._url = url
         self._status = None
+        parsed_url = urlparse(self._url)
+        server_url = parsed_url.netloc.split(":")[0]
+        server_port = parsed_url.netloc.split(":")[1] if len(parsed_url.netloc.split(":")) == 2  else "80"
+        from .server import Server
+        self._server = Server(server_url,server_port)
 
         def __str__(self):
             self._status = self._http_get()
@@ -87,12 +92,19 @@ results: ${results}
         self._status = self._http_get()
         return self._build_result()
 
-    def wait_for_done(self):
+    def wait_for_done(self,inArcGIS=None):
         """
         Wait until job completes
         """
-        while not re.match('(Failed|Succeeded)', self.status):
-            time.sleep(1)
+        if inArcGIS is None :
+            while not re.match('(Failed|Succeeded)', self.status) :
+                time.sleep(1)
+        else :
+            import arcpy
+            while not re.match('(Failed|Succeeded)', self.status) and not arcpy.env.isCancelled :
+                time.sleep(1)
+            if arcpy.env.isCancelled :
+                self._server.cancelJob(self.job_id)
 
     def _http_get(self):
         """
