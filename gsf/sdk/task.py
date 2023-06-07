@@ -52,7 +52,7 @@ class Task(BaseTask):
                           None, None, None))
 
 
-    def submit(self, parameters=None):
+    def submit(self, parameters=None,inArcGIS=None):
         """
         """
         jobOptions = {
@@ -67,6 +67,11 @@ class Task(BaseTask):
         if parameters is not None :
             jobOptions['inputParameters'] = parameters
 
+
+        if inArcGIS is not None:
+            import arcpy
+            arcpy.SetProgressor("step")
+            
         # Trace back the url to get the service name
         jobs_url = self._jobs_url()
         response = requests.post(jobs_url, json=jobOptions)
@@ -79,7 +84,7 @@ class Task(BaseTask):
         if 'jobId' in status:
             jobid_str =  str(status['jobId']) 
                                 
-        return Job('/'.join((jobs_url, jobid_str)))
+        return Job('/'.join((jobs_url, jobid_str)),inArcGIS=inArcGIS)
 
     def _reformat_info(self, parameters, direction):
         for parameter in parameters:

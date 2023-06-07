@@ -17,12 +17,15 @@ class Job(BaseJob):
     Creates a GSF job used for querying job information.
     """
 
-    def __init__(self,  url):
+    def __init__(self,  url,inArcGIS=None):
         self._url = url
         self._status = None
         parsed_url = urlparse(self._url)
         server_url = parsed_url.netloc.split(":")[0]
         server_port = parsed_url.netloc.split(":")[1] if len(parsed_url.netloc.split(":")) == 2  else "80"
+
+        self._inArcGIS  = True if inArcGIS is not None else False
+        
         from .server import Server
         self._server = Server(server_url,server_port)
 
@@ -92,19 +95,22 @@ results: ${results}
         self._status = self._http_get()
         return self._build_result()
 
-    def wait_for_done(self,inArcGIS=None):
+    def wait_for_done(self):
         """
         Wait until job completes
         """
-        if inArcGIS is None :
+        if not self._inArcGIS :
             while not re.match('(Failed|Succeeded)', self.status) :
                 time.sleep(1)
         else :
             import arcpy
             while not re.match('(Failed|Succeeded)', self.status) and not arcpy.env.isCancelled :
+                arcpy.SetProgressorLabel(str(self._status['jobMessage']) if "jobMessage" in self._status else "")
+                arcpy.SetProgressorPosition(int(self._status['jobProgress']))
                 time.sleep(1)
             if arcpy.env.isCancelled :
                 self._server.cancelJob(self.job_id)
+            arcpy.ResetProgressor()
 
     def _http_get(self):
         """
