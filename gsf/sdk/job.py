@@ -102,7 +102,8 @@ results: ${results}
         if not self._inArcGIS :
             while not re.match('(Failed|Succeeded)', self.status) :
                 time.sleep(1)
-        else :
+        else : 
+            # We are in ArcGIS world so we may use arcpy
             import arcpy
             while not re.match('(Failed|Succeeded)', self.status) and not arcpy.env.isCancelled :
                 arcpy.SetProgressorLabel(str(self._status['jobMessage']) if "jobMessage" in self._status else "")
@@ -110,6 +111,11 @@ results: ${results}
                 time.sleep(1)
             if arcpy.env.isCancelled :
                 self._server.cancelJob(self.job_id)
+            # Inform about status one more time
+            self._status = self._http_get()
+            arcpy.SetProgressorLabel(str(self._status['jobMessage']) if "jobMessage" in self._status else "")
+            arcpy.SetProgressorPosition(int(self._status['jobProgress']))
+            # Back to normal
             arcpy.ResetProgressor()
 
     def _http_get(self):

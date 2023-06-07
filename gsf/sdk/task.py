@@ -69,9 +69,10 @@ class Task(BaseTask):
 
 
         if inArcGIS is not None:
+            # We are in ArcGIS world so we may use arcpy
             import arcpy
             arcpy.SetProgressor("step")
-            
+
         # Trace back the url to get the service name
         jobs_url = self._jobs_url()
         response = requests.post(jobs_url, json=jobOptions)
