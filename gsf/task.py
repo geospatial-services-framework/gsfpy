@@ -6,6 +6,7 @@ from abc import abstractmethod, abstractproperty
 from string import Template
 from pprint import PrettyPrinter
 from .gsfmeta import GSFMeta
+import requests
 
 class Task(metaclass=GSFMeta):
     """
@@ -75,14 +76,16 @@ parameters: ${parameters}
         return self.__str__()
 
     @abstractmethod
-    def __init__(self, uri=None):
+    def __init__(self, uri=None, session=None):
         """
         Returns a GSF Task object based on the uri.
 
         :param uri: A String representing the unique id of the task.
+        :param session: optional requests.Session object 
         :return: None
         """
         self._uri = uri
+        self._connection = requests if session is None else session
 
     @abstractproperty
     def uri(self):

@@ -2,10 +2,12 @@
 The GSF server object is used to connect to the server and retrieve information about available services and jobs.
 
 """
+
 from __future__ import absolute_import
 from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
+import requests
 
 class Server(metaclass=GSFMeta):
     """
@@ -68,16 +70,19 @@ port: ${port}
     def __unicode__(self):
         return self.__str__()
 
-    def __init__(self, server=None, port='9191'):
+    def __init__(self, server=None, port='9191', session=None):
         """
         Returns the GSF Server object based on server and port.
 
         :param server: The server name as a string.
         :param port: The port number as a string.
+        :param session: optional requests.Session object 
         :return: GSF Server object
         """
         self._server = server
         self._port = port
+
+        self._connection = requests if session is None else session
 
     @abstractproperty
     def name(self):

@@ -23,10 +23,11 @@ class Server(BaseServer):
         self._services_path = 'services'
         self._url = urlunparse(('http', ':'.join((self._server, self._port)),
                                 '', None, None, None))
-
         self._info_path = 'reports/server-info'
         self._server_info = self._http_get(path=self._info_path)
         self._services_list = []
+
+
 
     @property
     def name(self):
@@ -86,7 +87,7 @@ class Server(BaseServer):
             self.services()
         if not service_name in self._services_list:
             raise ServiceNotFoundError(f"Service {service_name} not found")
-        return Service('/'.join((self._url, self._services_path, service_name)))
+        return Service('/'.join((self._url, self._services_path, service_name)), session=self._connection)
 
     def job(self, job_id):
         """
@@ -143,7 +144,7 @@ class Server(BaseServer):
             if taskName is not None:
                 jobsearch['query']['taskName'] = {"$eq": taskName}
 
-            response = requests.post(
+            response = self._connection.post(
                 '/'.join((self._url, "searchJobs")), json=jobsearch)
             rawjobs = response.json()
             jobs = rawjobs['jobs']
@@ -171,13 +172,13 @@ class Server(BaseServer):
         
         # if GSF 2.X send a delete request to http://server/job-console/jobId
         if self.version.startswith("2."):
-            response = requests.delete("/".join((self.url,"job-console",str(jobId))))
+            response = self._connection.delete("/".join((self.url,"job-console",str(jobId))))
         # if GSF 3.X send put request 
         elif self.version.startswith("3."):
             request_body = {
                 "jobStatus": "CancelRequested"
             }
-            response = requests.put('/'.join((self._url, "jobs", str(jobId))), json=request_body)
+            response = self._connection.put('/'.join((self._url, "jobs", str(jobId))), json=request_body)
         if response.status_code >= 400:
             raise JobNotFoundError(
                 f'HTTP code {response.status_code}, Reason: {response.text}')
@@ -189,7 +190,7 @@ class Server(BaseServer):
         :return:
         """
         try:
-            response = requests.get('/'.join((self._url, path)))
+            response = self._connection.get('/'.join((self._url, path)))
             if response.status_code >= 400:
                 raise ServerNotFoundError(
                     f'HTTP code {response.status_code}, Reason: {response.text}')

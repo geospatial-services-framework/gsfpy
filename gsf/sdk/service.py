@@ -15,9 +15,11 @@ class Service(BaseService):
     """
     Creates a GSF Service object that can list tasks and create task objects.
     """
-    def __init__(self, url):
+    def __init__(self, url, session=None):
         self._url = url
+        self._connection = requests if session is None else session
         self._service_info = self._http_get()
+
 
     def task(self, task_name):
         """
@@ -26,7 +28,7 @@ class Service(BaseService):
         :param: task_name: The name of the task to retrieve.
         :return: a GSF Task object
         """
-        return Task('/'.join((self._url, 'tasks', task_name)))
+        return Task('/'.join((self._url, 'tasks', task_name)), session=self._connection)
 
     def tasks(self):
         """
@@ -51,7 +53,7 @@ class Service(BaseService):
         :return:
         """
         url = self._url if not path else '/'.join((self._url, path))
-        response = requests.get(url)
+        response = self._connection.get(url)
         if response.status_code >= 400:
             raise ServiceNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
         return response.json()

@@ -75,7 +75,7 @@ class Task(BaseTask):
 
         # Trace back the url to get the service name
         jobs_url = self._jobs_url()
-        response = requests.post(jobs_url, json=jobOptions)
+        response = self._connection.post(jobs_url, json=jobOptions)
         if response.status_code >= 400:
             raise TaskNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
         status = response.json()
@@ -85,7 +85,7 @@ class Task(BaseTask):
         if 'jobId' in status:
             jobid_str =  str(status['jobId']) 
                                 
-        return Job('/'.join((jobs_url, jobid_str)),inArcGIS=inArcGIS)
+        return Job('/'.join((jobs_url, jobid_str)),inArcGIS=inArcGIS,session=self._connection)
 
     def _reformat_info(self, parameters, direction):
         for parameter in parameters:
@@ -107,7 +107,7 @@ class Task(BaseTask):
 
     @lru_cache(maxsize=None)
     def _http_get(self):
-        response = requests.get(self._uri)
+        response = self._connection.get(self._uri)
         if response.status_code >= 400:
             raise TaskNotFoundError(f'HTTP code {response.status_code}, Reason: {response.text}')
         info = response.json()

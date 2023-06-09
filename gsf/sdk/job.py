@@ -17,9 +17,10 @@ class Job(BaseJob):
     Creates a GSF job used for querying job information.
     """
 
-    def __init__(self,  url,inArcGIS=None):
+    def __init__(self,  url,inArcGIS=None, session=None):
         self._url = url
         self._status = None
+        self._connection = requests if session is None else session
         parsed_url = urlparse(self._url)
         server_url = parsed_url.netloc.split(":")[0]
         server_port = parsed_url.netloc.split(":")[1] if len(parsed_url.netloc.split(":")) == 2  else "80"
@@ -27,7 +28,7 @@ class Job(BaseJob):
         self._inArcGIS  = True if inArcGIS is not None else False
         
         from .server import Server
-        self._server = Server(server_url,server_port)
+        self._server = Server(server_url,server_port,session=self._connection)
 
         def __str__(self):
             self._status = self._http_get()
@@ -122,7 +123,7 @@ results: ${results}
         """
         :return: the get response of job url
         """       
-        response = requests.get(self._url)
+        response = self._connection.get(self._url)
         if response.status_code >= 400:
             raise JobNotFoundError(
                 f'HTTP code {response.self._status_code}, Reason: {response.text}')
