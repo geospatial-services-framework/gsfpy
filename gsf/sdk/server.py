@@ -2,7 +2,7 @@
 from functools import lru_cache
 import requests
 from requests.exceptions import ConnectionError
-from urllib.parse import urlunparse
+from urllib.parse import urlunparse, urlparse
 
 from ..error import ServerNotFoundError
 from ..error import ServiceNotFoundError
@@ -158,7 +158,7 @@ class Server(BaseServer):
         """
         return self.getJobs()
 
-    def cancelJob(self, jobId):
+    def cancelJob(self, jobId,raiseErrorIfNotRunning=True):
         """
         :param jobId: the job id to cancel
         :return: the HTTP response "message": "Cancel Sent"
@@ -167,8 +167,11 @@ class Server(BaseServer):
         job = self.job(jobId)
         jobStatus = job.status
         if jobStatus != 'Started':
-            raise JobNotFoundError(
-                f'Job id {jobId} is not running, status is {jobStatus}')
+            if raiseErrorIfNotRunning : 
+                raise JobNotFoundError(
+                    f'Job id {jobId} is not running, status is {jobStatus}')
+            else:
+                return {  "message": f'Job {jobId} status is {jobStatus}, Cancel Not Sent' }
         
         # if GSF 2.X send a delete request to http://server/job-console/jobId
         if self.version.startswith("2."):

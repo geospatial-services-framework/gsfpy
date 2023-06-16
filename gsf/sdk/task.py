@@ -16,6 +16,11 @@ class Task(BaseTask):
     """
     def __init__(self, *args, **kwargs):
         super(Task, self).__init__(*args, **kwargs)
+
+        # Retrieve the server from URI 
+        from gsf import Server
+        self._Server = Server(taskUrl=self._uri,session=self._connection)
+
         self.info = self._http_get()
 
     @property
@@ -37,6 +42,10 @@ class Task(BaseTask):
     @property
     def description(self):
         return str(self.info['description']) if 'description' in self.info else ''
+    
+    @property
+    def Server(self):
+        return self._Server
 
     @property
     def parameters(self):
@@ -52,7 +61,7 @@ class Task(BaseTask):
                           None, None, None))
 
 
-    def submit(self, parameters=None,inArcGIS=None):
+    def submit(self, parameters=None):
         """
         """
         jobOptions = {
@@ -68,11 +77,6 @@ class Task(BaseTask):
             jobOptions['inputParameters'] = parameters
 
 
-        if inArcGIS is not None:
-            # We are in ArcGIS world so we may use arcpy
-            import arcpy
-            arcpy.SetProgressor("step")
-
         # Trace back the url to get the service name
         jobs_url = self._jobs_url()
         response = self._connection.post(jobs_url, json=jobOptions)
@@ -85,7 +89,7 @@ class Task(BaseTask):
         if 'jobId' in status:
             jobid_str =  str(status['jobId']) 
                                 
-        return Job('/'.join((jobs_url, jobid_str)),inArcGIS=inArcGIS,session=self._connection)
+        return Job('/'.join((jobs_url, jobid_str)),session=self._connection)
 
     def _reformat_info(self, parameters, direction):
         for parameter in parameters:

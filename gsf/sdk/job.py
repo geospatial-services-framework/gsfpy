@@ -17,28 +17,25 @@ class Job(BaseJob):
     Creates a GSF job used for querying job information.
     """
 
-    def __init__(self,  url,inArcGIS=None, session=None):
+    def __init__(self,  url, session=None):
         self._url = url
         self._status = None
         self._connection = requests if session is None else session
-        parsed_url = urlparse(self._url)
-        server_url = parsed_url.netloc.split(":")[0]
-        server_port = parsed_url.netloc.split(":")[1] if len(parsed_url.netloc.split(":")) == 2  else "80"
 
-        self._inArcGIS  = True if inArcGIS is not None else False
-        
-        from .server import Server
-        self._server = Server(server_url,server_port,session=self._connection)
+        # Retrieve server from URL
+        from gsf import Server
+        self._Server = Server(taskUrl=self._url,session=self._connection)
+        self._status = self._http_get()
 
-        def __str__(self):
-            self._status = self._http_get()
-            props = dict(job_id=self._status['jobId'],
-                         status=self._status['status'],
-                         progress=self._status['jobProgress'],
-                         progress_message=str(self._status['jobProgressMessage']),
-                         error_message=str(self._status['jobErrorMessage']),
-                         results=self._build_result())
-            return Template('''
+    def __str__(self):
+        self._status = self._http_get()
+        props = dict(job_id=self._status['jobId'],
+                        status=self._status['status'],
+                        progress=self._status['jobProgress'],
+                        progress_message=str(self._status['jobProgressMessage']),
+                        error_message=str(self._status['jobErrorMessage']),
+                        results=self._build_result())
+        return Template('''
 job_id: ${job_id}
 self._status: ${self._status}
 progress: ${progress}
@@ -52,14 +49,12 @@ results: ${results}
         """
         :return: the jobId of the job
         """
-        if self._status is None :
-            self._status = self._http_get()
         return self._status['jobId']
 
     @property
     def status(self):
         """
-        :return: the jobself._status of the job
+        :return: the job self._status of the job
         """
         self._status = self._http_get()
         return self._status['jobStatus']
@@ -95,29 +90,35 @@ results: ${results}
         """
         self._status = self._http_get()
         return self._build_result()
+    
+    @property
+    def Server(self):
+        """
+        Returns the Server
+        """
+        return self._Server
 
-    def wait_for_done(self):
+    def wait_for_done(self, status_callback=None):
         """
-        Wait until job completes
+         Wait until job completes
+        :param: status_callback: The callback to call at each check of jobStatus.
         """
-        if not self._inArcGIS :
-            while not re.match('(Failed|Succeeded)', self.status) :
-                time.sleep(1)
-        else : 
-            # We are in ArcGIS world so we may use arcpy
-            import arcpy
-            while not re.match('(Failed|Succeeded)', self.status) and not arcpy.env.isCancelled :
-                arcpy.SetProgressorLabel(str(self._status['jobMessage']) if "jobMessage" in self._status else "")
-                arcpy.SetProgressorPosition(int(self._status['jobProgress']))
-                time.sleep(1)
-            if arcpy.env.isCancelled :
-                self._server.cancelJob(self.job_id)
-            # Inform about status one more time
+
+        while not re.match('(Failed|Succeeded)', self._status['jobStatus']):
             self._status = self._http_get()
-            arcpy.SetProgressorLabel(str(self._status['jobMessage']) if "jobMessage" in self._status else "")
-            arcpy.SetProgressorPosition(int(self._status['jobProgress']))
-            # Back to normal
-            arcpy.ResetProgressor()
+            if status_callback is not None:
+                status_callback(self._status)
+            time.sleep(1)
+        # One more time when finished 
+        if status_callback is not None and self._status['jobStatus'] != 'Failed':
+                status_callback(self._status)
+        
+
+    def cancel(self):
+        """
+        cancel the job
+        """
+        self._Server.cancelJob(self.job_id())
 
     def _http_get(self):
         """

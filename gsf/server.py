@@ -8,6 +8,7 @@ from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
 import requests
+from urllib.parse import urlunparse, urlparse
 
 class Server(metaclass=GSFMeta):
     """
@@ -70,7 +71,7 @@ port: ${port}
     def __unicode__(self):
         return self.__str__()
 
-    def __init__(self, server=None, port='9191', session=None):
+    def __init__(self, server=None, port='9191', taskUrl=None, session=None):
         """
         Returns the GSF Server object based on server and port.
 
@@ -79,8 +80,13 @@ port: ${port}
         :param session: optional requests.Session object 
         :return: GSF Server object
         """
-        self._server = server
-        self._port = port
+        if server is not None:
+            self._server = server
+            self._port = port
+        elif taskUrl is not None:
+            parsed_url = urlparse(taskUrl)
+            self._server = parsed_url.netloc.split(":")[0]
+            self._port = parsed_url.netloc.split(":")[1] if len(parsed_url.netloc.split(":")) == 2  else "80"
 
         self._connection = requests if session is None else session
 
@@ -186,7 +192,7 @@ port: ${port}
         :return: a list 
         """
     @abstractmethod
-    def cancelJob(self, jobId):
+    def cancelJob(self, jobId,raiseErrorIfNotRunning=True):
         """
         Cancels a job on the server
 

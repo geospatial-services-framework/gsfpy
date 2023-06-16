@@ -124,6 +124,15 @@ parameters: ${parameters}
         pass
 
     @abstractproperty
+    def Server(self):
+        """
+        The Server 
+
+        :return: a Server object
+        """
+        pass
+
+    @abstractproperty
     def parameters(self):
         """
         A list of the task parameter definitions. Each task parameter is a dictionary containing, but not

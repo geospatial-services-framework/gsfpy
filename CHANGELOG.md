@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 - The service.tasks method now returns a list of the full task definitions. 
 - Switched the job_id from an int to a str.
 
-# 3.0.0
+# 2.0.0 / 2023-06-15
 -	Fixed the jobId/jobID is task submission (was crashing)
 -	Made task submission parameter optional  
 -	Checked is job status contains jobMessage 
@@ -17,5 +17,6 @@ All notable changes to this project will be documented in this file.
 -   Use of /searchJobs for GSF 3.X instead of jobs (deprecated)
 -	Added a server.url property (useful to build data access URLs)
 -   Added the base classes methods if necessary.
--   Added job cancelling in Job class and in Server class
+-   Added job cancelling in Job class and in Server class: added Server reference in Job and Task
+-   Added a session to use if GSF server requires authentication
 

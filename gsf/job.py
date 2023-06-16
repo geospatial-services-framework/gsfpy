@@ -8,7 +8,6 @@ from .gsfmeta import GSFMeta
 
 
 
-
 class Job(metaclass=GSFMeta):
 
     """
@@ -118,6 +117,15 @@ results: ${results}
         pass
 
     @abstractproperty
+    def Server(self):
+        """
+        Returns the Server object from which the job has been submitted
+
+        :return: a Server object
+        """
+        pass
+    
+    @abstractproperty
     def progress(self):
         """
         Returns a percentage of job completion
@@ -160,4 +168,10 @@ results: ${results}
 
         :return: None
         """
+    @abstractmethod
+    def cancel(self):
+        """
+        Cancels the job. 
 
+        :return: the put response "message": "Cancel Sent"
+        """
