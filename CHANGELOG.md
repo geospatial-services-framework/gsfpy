@@ -11,7 +11,8 @@ All notable changes to this project will be documented in this file.
 -   Use of /searchJobs for GSF 3.X instead of jobs (deprecated)
 -	Added a server.url property (useful to build data access URLs)
 -   Added the base classes methods if necessary.
--   Added job cancelling in Job class and in Server class: added Server reference in Job and Task
+-   Added job cancelling in Job class and in Server class
+-   Added Server reference in Job and Task to be able to cancel jobs from these classes
 -   Added a session to use if GSF server requires authentication
 
 # 2.0.0 / 2023-04-07
