@@ -106,10 +106,11 @@ results: ${results}
 
         while not re.match('(Failed|Succeeded)', self._status['jobStatus']):
             self._status = self._http_get()
-            if status_callback is not None:
+            if status_callback is not None and self._status['jobStatus'] != 'Failed':
                 status_callback(self._status)
             time.sleep(1)
-        # One more time when finished 
+            
+        # One more time when finished to get the last message and progress
         if status_callback is not None and self._status['jobStatus'] != 'Failed':
                 status_callback(self._status)
         
