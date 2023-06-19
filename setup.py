@@ -11,7 +11,7 @@ with open(os.path.join(here, 'README.rst')) as f:
     long_description = f.read()
 
 setup(name='gsf',
-      version='2.0.0',
+      version='2.0.1',
       description='GSF Py',
       long_description=long_description,
       url='https://github.com/geospatial-services-framework/gsfpy',
