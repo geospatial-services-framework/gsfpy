@@ -66,3 +66,18 @@ class JobNotFoundError(Exception):
     """
     pass
 
+
+class JobStatusNotFoundError(Exception):
+    """Exception gets raised when the user has passed in an incorrect job number.
+
+    :Example:
+
+    >>> from gsf import Server
+    >>> server = Server('localhost','9191')
+    >>> job = server.getJobs(jobStatus='Completed') 
+    # traceback information
+    gsf.error.JobStatusNotFoundError: HTTP code: 404, Reason: Not Found
+    """
+    pass
+
+

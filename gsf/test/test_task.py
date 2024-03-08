@@ -54,7 +54,7 @@ class TestTask(unittest.TestCase):
             self.assertIsInstance(parameter['name'], str)
             self.assertIsInstance(parameter['display_name'], str)
             self.assertIsInstance(parameter['type'], str)
-            self.assertRegexpMatches(parameter['direction'], '(input|output)')
+            self.assertRegex(parameter['direction'], '(input|output)')
             self.assertIsInstance(parameter['description'], str)
             self.assertIsInstance(parameter['required'], bool)
 

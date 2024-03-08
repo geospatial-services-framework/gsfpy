@@ -5,9 +5,11 @@ from __future__ import absolute_import
 from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
-from .utils import with_metaclass
 
-class Job(with_metaclass(GSFMeta, object)):
+
+
+class Job(metaclass=GSFMeta):
+
     """
     A GSF Job object connects to a GSF Job and its status.
 
@@ -55,6 +57,10 @@ class Job(with_metaclass(GSFMeta, object)):
     Wait for job to be done.
 
     >>> job.wait_for_done()
+
+    Cancel a job 
+
+    >>> job.cancel()
 	
     Investigate job information and results.
 	
@@ -68,6 +74,7 @@ class Job(with_metaclass(GSFMeta, object)):
     'Invalid value for parameter: INPUT_RASTER. Error: File: ...
 
     """
+    JOB_STATUS_MAP = {"succeeded","failed","started","accepted"}
 
     def __str__(self):
         props = dict(job_id=self.job_id,
@@ -109,6 +116,15 @@ results: ${results}
         """
         pass
 
+    @abstractproperty
+    def Server(self):
+        """
+        Returns the Server object from which the job has been submitted
+
+        :return: a Server object
+        """
+        pass
+    
     @abstractproperty
     def progress(self):
         """
@@ -152,4 +168,10 @@ results: ${results}
 
         :return: None
         """
-        pass
+    @abstractmethod
+    def cancel(self):
+        """
+        Cancels the job. 
+
+        :return: the put response "message": "Cancel Sent"
+        """

@@ -6,9 +6,9 @@ from abc import abstractmethod, abstractproperty
 from string import Template
 from pprint import PrettyPrinter
 from .gsfmeta import GSFMeta
-from .utils import with_metaclass
+import requests
 
-class Task(with_metaclass(GSFMeta, object)):
+class Task(metaclass=GSFMeta):
     """
     The GSF Task object connects to a GSF Task and its parameters. 
 
@@ -30,7 +30,7 @@ class Task(with_metaclass(GSFMeta, object)):
     Investigate task information.
 	
     >>> print(task.uri, type(task.uri))
-    ('http://localhost:9191/ese/services/ENVI/SpectralIndex', <type 'str'>)
+    ('http://localhost:9191/services/ENVI/SpectralIndex', <type 'str'>)
     >>> print(task.description, type(task.description))
     ('This task creates a spectral index raster from one pre-defined spectral
     index. Spectral indices are combinations of surface reflectance at two
@@ -76,14 +76,16 @@ parameters: ${parameters}
         return self.__str__()
 
     @abstractmethod
-    def __init__(self, uri=None):
+    def __init__(self, uri=None, session=None):
         """
         Returns a GSF Task object based on the uri.
 
         :param uri: A String representing the unique id of the task.
+        :param session: optional requests.Session object 
         :return: None
         """
         self._uri = uri
+        self._connection = requests if session is None else session
 
     @abstractproperty
     def uri(self):
@@ -118,6 +120,15 @@ parameters: ${parameters}
         The task description
 
         :return: a string
+        """
+        pass
+
+    @abstractproperty
+    def Server(self):
+        """
+        The Server 
+
+        :return: a Server object
         """
         pass
 

@@ -2,13 +2,15 @@
 The GSF server object is used to connect to the server and retrieve information about available services and jobs.
 
 """
+
 from __future__ import absolute_import
 from abc import abstractmethod, abstractproperty
 from string import Template
 from .gsfmeta import GSFMeta
-from .utils import with_metaclass
+import requests
+from urllib.parse import urlunparse, urlparse
 
-class Server(with_metaclass(GSFMeta, object)):
+class Server(metaclass=GSFMeta):
     """
     The GSF server connection class.
 
@@ -34,12 +36,25 @@ class Server(with_metaclass(GSFMeta, object)):
      >>> print(services, type(services))
      ([u'IDL', u'ENVI'], <type 'list'>)
 	 
-	 Investigate jobs on the GSF server.
+	 Investigate on a single job on the GSF server.
 	 
 	 >>> job = server.job(1)
 	 >>> print(job.results)
 
+    Investigate on a many jobs on the GSF server.
+	 
+	 >>> jobs = server.jobs
+	 >>> print(jobs) 
 
+     or with filtering on job status
+
+	 >>> jobs = server.getJobs(jobStatus="Succeeded")
+	 >>> print(jobs) 
+
+     or with filtering on task name
+
+    >>> jobs = server.getJobs(taskName="ExportRasterToPng")
+	>>> print(jobs) 
     """
 
     def __str__(self):
@@ -56,16 +71,24 @@ port: ${port}
     def __unicode__(self):
         return self.__str__()
 
-    def __init__(self, server=None, port='9191'):
+    def __init__(self, server=None, port='9191', taskUrl=None, session=None):
         """
         Returns the GSF Server object based on server and port.
 
         :param server: The server name as a string.
         :param port: The port number as a string.
+        :param session: optional requests.Session object 
         :return: GSF Server object
         """
-        self._server = server
-        self._port = port
+        if server is not None:
+            self._server = server
+            self._port = port
+        elif taskUrl is not None:
+            parsed_url = urlparse(taskUrl)
+            self._server = parsed_url.netloc.split(":")[0]
+            self._port = parsed_url.netloc.split(":")[1] if len(parsed_url.netloc.split(":")) == 2  else "80"
+
+        self._connection = requests if session is None else session
 
     @abstractproperty
     def name(self):
@@ -84,6 +107,42 @@ port: ${port}
         :return: a string
         """
 
+    @abstractproperty
+    def description(self):
+        """
+        Returns the server description.
+
+        :return: a string
+        """
+
+    @abstractproperty
+    def requestHandlers(self):
+        """
+        Returns the list of request handler types implemented on the GSF server
+
+        :return: a list of strings
+        """
+    @abstractproperty
+    def version(self):
+        """
+        Returns the server GSF version.
+
+        :return: a string
+        """
+    @abstractproperty
+    def info(self):
+        """
+        Returns the server information
+
+        :return: a string
+        """   
+    @abstractproperty
+    def url(self):
+        """
+        Returns the server url
+
+        :return: a string
+        """   
     @abstractmethod
     def services(self):
         """
@@ -112,3 +171,34 @@ port: ${port}
         :return: GSF Job object
         """
         pass
+
+    @abstractmethod
+    def getJobs(self, jobStatus=None, limit=None, offset=0, taskName=None):
+        """
+        Returns a list of jobs and allows filtering 
+
+        :param jobStatus: Filters with jobStatus 
+        :param limit: limit parameter of /jobs url or /searchJob post request  
+        :param offset: offset parameter of /jobs url or /searchJob post request
+        :taskName: Filters on taskName
+        :return: a job list
+        """
+        pass
+    @abstractproperty
+    def jobs(self):
+        """
+        Returns all jobs of the server 
+
+        :return: a list 
+        """
+    @abstractmethod
+    def cancelJob(self, jobId,raiseErrorIfNotRunning=True):
+        """
+        Cancels a job on the server
+
+        :param jobId: The job Id to cancel
+        :return: put response "message": "Cancel Sent"
+        """
+        pass
+    
+
