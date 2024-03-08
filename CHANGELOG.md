@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-# 2.0.0 / 2023-06-15
+# 2.0.1 / 2023-06-15
 -	Fixed the jobId/jobID is task submission (was crashing)
 -	Made task submission parameter optional  
 -	Checked is job status contains jobMessage 
